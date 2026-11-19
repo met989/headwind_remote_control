@@ -1,0 +1,33 @@
+# Secrets & local credentials (NEVER commit!)
+secrets.key
+*.jks
+*.keystore
+server/web-admin/dist/js/settings.js
+
+# Build artifacts & downloaded bundles
+*.war.*
+*.tar.gz
+*.bak*
+_build_tools/
+
+# Reference upstream clones (optional local clones)
+hmdm-android/
+hmdm-server-v7/
+
+# Android / Gradle build outputs
+client-android/.gradle/
+client-android/build/
+client-android/app/build/
+client-android/local.properties
+client-android/.idea/
+*.iml
+
+# Java compiled classes inside web-admin
+server/web-admin/WEB-INF/classes/
+
+# Node / OS / Python
+node_modules/
+__pycache__/
+*.pyc
+.DS_Store
+Thumbs.db

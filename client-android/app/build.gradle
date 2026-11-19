@@ -1,0 +1,166 @@
+apply plugin: 'com.android.application'
+
+def secretsFile = file('../../secrets.key')
+def remoteServerUrl = "https://your-mdm-server.example.com:8089/"
+def remoteSecret = ""
+def customVersionName = ""
+def customVersionCode = 0
+def videoQuality = "medium"
+def videoMaxSize = 0
+def videoBitrate = 0
+def videoFps = 0
+def keystoreFile = "../../custom-remote.jks"
+def keystorePassword = "custom_release_key"
+def keystoreAlias = "custom_remote"
+def keystoreKeyPassword = ""
+
+if (secretsFile.exists() && (!project.hasProperty('generic') || project.property('generic') != 'true')) {
+    secretsFile.eachLine { line ->
+        def trimmed = line.trim()
+        if (trimmed.isEmpty() || trimmed.startsWith('#')) return
+        def idx = trimmed.indexOf('=')
+        if (idx > 0) {
+            def k = trimmed.substring(0, idx).trim()
+            def kl = k.toLowerCase()
+            def v = trimmed.substring(idx + 1).trim()
+            if (kl == 'server_remote' && v.startsWith('http')) remoteServerUrl = v
+            if (kl == 'secret_remote' && v.length() > 0) remoteSecret = v
+            if ((kl == 'versionname' || kl == 'version_name') && v.length() > 0) customVersionName = v
+            if ((kl == 'versioncode' || kl == 'version_code') && v.isInteger()) customVersionCode = v.toInteger()
+            if (kl == 'video_quality' && v.length() > 0) videoQuality = v.toLowerCase()
+            if (kl == 'video_max_size' && v.isInteger()) videoMaxSize = v.toInteger()
+            if (kl == 'video_bitrate' && v.isInteger()) videoBitrate = v.toInteger()
+            if (kl == 'video_fps' && v.isInteger()) videoFps = v.toInteger()
+            if (kl == 'keystore_file' && v.length() > 0) keystoreFile = v
+            if (kl == 'keystore_password' && v.length() > 0) keystorePassword = v
+            if (kl == 'keystore_alias' && v.length() > 0) keystoreAlias = v
+            if (kl == 'keystore_key_password' && v.length() > 0) keystoreKeyPassword = v
+        }
+    }
+}
+
+// Resolve video quality preset (can be overridden individually via video_max_size, video_bitrate, video_fps)
+def presetMaxSize = 800
+def presetBitrate = 1000000
+def presetFps = 15
+switch (videoQuality) {
+    case 'low':
+        presetMaxSize = 800
+        presetBitrate = 512000
+        presetFps = 12
+        break
+    case 'high':
+        presetMaxSize = 1280
+        presetBitrate = 2000000
+        presetFps = 20
+        break
+    case 'ultra':
+        presetMaxSize = 1920
+        presetBitrate = 4000000
+        presetFps = 30
+        break
+    default: // medium
+        presetMaxSize = 800
+        presetBitrate = 1000000
+        presetFps = 15
+        break
+}
+if (videoMaxSize <= 0) videoMaxSize = presetMaxSize
+if (videoBitrate <= 0) videoBitrate = presetBitrate
+if (videoFps <= 0) videoFps = presetFps
+
+if (customVersionName.isEmpty()) {
+    customVersionName = "2.4-custom"
+}
+
+if (customVersionCode <= 0) {
+    def m = (customVersionName =~ /^(\d+)\.(\d+)(?:\.(\d+))?/)
+    if (m.find()) {
+        int maj = m.group(1).toInteger()
+        String minStr = m.group(2)
+        int min = minStr.toInteger()
+        int pat = m.group(3) ? m.group(3).toInteger() : 0
+        // Single-digit minor (e.g. 2.1) -> 2100; zero-padded two-digit minor (e.g. 2.09) -> 2090
+        int minPart = (minStr.length() == 1) ? (min * 100) : (min * 10)
+        customVersionCode = maj * 1000 + minPart + pat
+    } else {
+        customVersionCode = 2400
+    }
+}
+
+if (keystoreKeyPassword.isEmpty()) keystoreKeyPassword = keystorePassword
+
+android {
+    compileSdkVersion 33
+    buildToolsVersion "33.0.2"
+
+    defaultConfig {
+        applicationId "com.hmdm.control"
+        minSdkVersion 24
+        targetSdkVersion 33
+        versionCode customVersionCode
+        versionName customVersionName
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        buildConfigField("String", "DEFAULT_SERVER_URL", "\"${remoteServerUrl}\"")
+        buildConfigField("String", "DEFAULT_SECRET", "\"${remoteSecret}\"")
+        buildConfigField("String", "VARIANT", "\"custom\"")
+        buildConfigField("Boolean", "USE_GOOGLE_ENCODER", "true")
+        buildConfigField("int", "DEFAULT_MAX_SCREEN_SIZE", "${videoMaxSize}")
+        buildConfigField("int", "DEFAULT_BITRATE", "${videoBitrate}")
+        buildConfigField("int", "DEFAULT_FRAME_RATE", "${videoFps}")
+
+        ndk {
+            abiFilters 'arm64-v8a', 'armeabi-v7a'
+        }
+    }
+
+    signingConfigs {
+        release {
+            storeFile file(keystoreFile)
+            storePassword keystorePassword
+            keyAlias keystoreAlias
+            keyPassword keystoreKeyPassword
+        }
+    }
+
+    buildTypes {
+        release {
+            signingConfig signingConfigs.release
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    lintOptions {
+        abortOnError false
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'com.google.android.material:material:1.8.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    implementation 'androidx.localbroadcastmanager:localbroadcastmanager:1.1.0'
+
+    // Retrofit
+    implementation 'com.squareup.retrofit2:retrofit:2.9.0'
+    implementation 'com.squareup.retrofit2:converter-jackson:2.9.0'
+    implementation 'com.squareup.okhttp3:logging-interceptor:3.14.9'
+
+    // Jackson
+    implementation 'com.fasterxml.jackson.core:jackson-core:2.13.5'
+    implementation 'com.fasterxml.jackson.core:jackson-annotations:2.13.5'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.13.5'
+
+    // WebRTC (official Maven Central build with arm64-v8a & armeabi-v7a native libs)
+    implementation 'io.github.webrtc-sdk:android:125.6422.07'
+}

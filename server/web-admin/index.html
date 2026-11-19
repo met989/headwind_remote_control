@@ -1,0 +1,350 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Headwind Remote Web Administrator</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="description" content="Open source web application to access Android devices remotely (remote support program)" />
+
+    <link rel="shortcut icon" href="static/images/favicon.ico" type="image/x-icon">
+
+    <link rel="stylesheet" href="dist/css/deps.min.css" type="text/css"/>
+    <link rel="stylesheet" href="dist/css/app.min.css?v=20261119-9" type="text/css"/>
+</head>
+<body class="d-flex flex-column min-vh-100">
+
+    <div id="pageLoader" class="loader loader-default is-active" data-text="Loading..."></div>
+
+    <!-- Login form -->
+    <form id="login-form">
+        <div class="container py-5" id="login-form-container">
+            <div class="row justify-content-center">
+                <div class="col-md-6 col-lg-5">
+                    <div class="card remote-login-card">
+                        <div class="card-body p-4 position-relative">
+                            <div class="text-center mb-4">
+                                <div class="remote-login-icon mx-auto mb-3">
+                                    <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                                        <line x1="8" y1="21" x2="16" y2="21"></line>
+                                        <line x1="12" y1="17" x2="12" y2="21"></line>
+                                    </svg>
+                                </div>
+                                <h1 class="h4 font-weight-bold mb-1">Headwind Remote</h1>
+                            </div>
+
+                            <div id="device-hint-banner" class="alert alert-info d-none small" role="alert"></div>
+
+                            <div class="form-group">
+                                <label for="input-session-id" class="font-weight-semibold small text-uppercase text-muted">Session ID</label>
+                                <input type="text" class="form-control form-control-lg input-start" id="input-session-id" maxlength="8"
+                                       autocomplete="off">
+                            </div>
+                            <div class="form-group">
+                                <label for="input-pin" class="font-weight-semibold small text-uppercase text-muted">Password</label>
+                                <input type="text" class="form-control form-control-lg input-start" id="input-pin" maxlength="4"
+                                       autocomplete="off">
+                            </div>
+
+
+                            <button type="submit" class="btn btn-primary btn-lg btn-block remote-start-btn mt-4">
+                                Connect
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+
+    <!-- Main area with video and device controls -->
+    <div class="d-none" id="main-window">
+        <header id="remoteTopBar">
+            <div class="remote-brand">
+                <button type="button" class="btn btn-light btn-sm remote-btn remote-btn-icon" id="btnToggleInfo" title="Toggle device info panel">
+                    <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                        <line x1="9" y1="3" x2="9" y2="21"></line>
+                    </svg>
+                </button>
+                <span class="remote-live-dot" title="Connected"></span>
+                <span id="textDeviceName" class="remote-device-title">...</span>
+            </div>
+            <div class="remote-top-actions">
+                <div class="remote-quality-wrap" title="Change live video streaming quality">
+                    <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="remote-quality-icon">
+                        <polygon points="23 7 16 12 23 17 23 7"></polygon>
+                        <rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect>
+                    </svg>
+                    <select id="selectQuality" class="remote-quality-select" aria-label="Video Quality">
+                        <option value="low">Low</option>
+                        <option value="medium" selected>Medium</option>
+                        <option value="high">High (HD)</option>
+                        <option value="ultra">Ultra (FHD)</option>
+                    </select>
+                </div>
+                <button type="button" class="btn btn-light btn-sm remote-btn" id="btnNotifications" title="Expand Android status bar / notifications">
+                    <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                        <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                    </svg>
+                    <span class="btn-label">Status Bar</span>
+                </button>
+                <button type="button" class="btn btn-light btn-sm remote-btn" id="btnToggleFit" title="Switch between 1:1 original size and fit-to-page">
+                    <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="15 3 21 3 21 9"></polyline>
+                        <polyline points="9 21 3 21 3 15"></polyline>
+                        <line x1="21" y1="3" x2="14" y2="10"></line>
+                        <line x1="3" y1="21" x2="10" y2="14"></line>
+                    </svg>
+                    <span class="btn-label">Fit Screen</span>
+                </button>
+                <button type="button" class="btn btn-light btn-sm remote-btn" id="btnFullscreen" title="Toggle browser fullscreen">
+                    <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path>
+                    </svg>
+                    <span class="btn-label">Fullscreen</span>
+                </button>
+                <button type="button" class="btn btn-light btn-sm remote-btn" id="btnOpenSettings" title="Configure Remote Control plugin settings">
+                    <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="3"></circle>
+                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                    </svg>
+                    <span class="btn-label">Settings</span>
+                </button>
+                <button type="button" class="btn btn-danger btn-sm remote-btn remote-btn-disconnect" id="btnDisconnect" title="End remote session">
+                    <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M18.36 6.64a9 9 0 1 1-12.73 0"></path>
+                        <line x1="12" y1="2" x2="12" y2="12"></line>
+                    </svg>
+                    <span class="btn-label">Disconnect</span>
+                </button>
+            </div>
+        </header>
+
+        <div id="remoteWorkspace">
+            <aside id="deviceInfoSidebar" aria-label="Device information">
+                <div class="info-sidebar-header">
+                    <span class="info-sidebar-title">Device Info</span>
+                    <button type="button" class="info-refresh-btn" id="btnRefreshInfo" title="Refresh MDM info">
+                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="23 4 23 10 17 10"></polyline>
+                            <polyline points="1 20 1 14 7 14"></polyline>
+                            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+                        </svg>
+                    </button>
+                </div>
+                <div id="deviceInfoBody" class="info-sidebar-body">
+                    <div class="info-empty">Loading device info...</div>
+                </div>
+            </aside>
+
+            <main id="videoStage">
+                <div class="p-0" id="windowStream">
+                    <div id="videoLoader" class="loader loader-bouncing"></div>
+                    <div id="deviceGestures"></div>
+                    <video id="streamingRemoteVideo" autoplay playsinline muted
+                        width="540" height="1064"></video>
+                </div>
+            </main>
+        </div>
+
+        <nav id="remoteBottomBar" aria-label="Android navigation">
+            <button type="button" class="btn btn-light remote-nav-btn" id="btnBack" title="Back">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="15 18 9 12 15 6"></polyline>
+                </svg>
+                <span>Back</span>
+            </button>
+            <button type="button" class="btn btn-light remote-nav-btn" id="btnHome" title="Home">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="7"></circle>
+                </svg>
+                <span>Home</span>
+            </button>
+            <button type="button" class="btn btn-light remote-nav-btn" id="btnRecents" title="Recent Apps">
+                <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="5" y="5" width="14" height="14" rx="2"></rect>
+                </svg>
+                <span>Recents</span>
+            </button>
+        </nav>
+    </div>
+
+    <textarea id="textareaClipboard"></textarea>
+
+    <!-- Debug stuff, invisible by default (text chat, stream metrics, etc.) -->
+    <div class="container debug-stuff d-none">
+        <div class="row">
+            <div class="col-md-auto">
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">
+                            <button id="debugClose" class="btn btn-info btn-sm">X</button>
+                            Debug utils
+                            <span class="badge badge-info" id="streamingStatus">Status</span>
+                            <span class="badge badge-primary" id="streamingCurrentResolution">Resolution</span>
+                            <span class="badge badge-info" id="streamingCurrentBitrate">Bitrate</span>
+                        </span>
+                    </div>
+
+                    <div class="card-body relative" style="overflow-x: auto;" id="textroomChat">
+                    </div>
+
+                    <div class="card-footer">
+                        <form id="chat-form">
+                            <div class="input-group margin-bottom-sm">
+                                <input class="form-control" type="text"
+                                       placeholder="Message" autocomplete="off"
+                                       id="textroomMessageInput" disabled/>
+                                <button type="submit" class="btn btn-primary ml-1"
+                                        id="textroomSendButton" disabled>Send
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Remote Control Settings Modal -->
+    <div class="modal fade" id="remoteSettingsModal" tabindex="-1" role="dialog" aria-labelledby="settingsModalTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+            <div class="modal-content shadow border-0">
+                <div class="modal-header bg-light">
+                    <h5 class="modal-title font-weight-bold" id="settingsModalTitle">
+                        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" class="mr-2 text-primary" style="vertical-align:-3px">
+                            <circle cx="12" cy="12" r="3"></circle>
+                            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                        </svg>
+                        Remote Control Plugin Settings
+                    </h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body p-4">
+                    <div id="settingsAlertPlaceholder"></div>
+
+                    <div class="mb-4">
+                        <h6 class="text-uppercase text-muted font-weight-bold small mb-3">Janus WebRTC Gateway Signaling</h6>
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <label for="cfgPortWss" class="small font-weight-semibold">WebSocket Port (WSS)</label>
+                                <input type="number" class="form-control" id="cfgPortWss" placeholder="8989" value="8989">
+                                <small class="form-text text-muted">Signaling channel used by modern browsers</small>
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label for="cfgPortHttps" class="small font-weight-semibold">HTTPS REST Port</label>
+                                <input type="number" class="form-control" id="cfgPortHttps" placeholder="8089" value="8089">
+                                <small class="form-text text-muted">Fallback signaling and Android agent endpoint</small>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="cfgApiSecret" class="small font-weight-semibold">Janus API Secret</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control font-weight-bold" id="cfgApiSecret" placeholder="Shared secret key" autocomplete="off" spellcheck="false">
+                                <div class="input-group-append">
+                                    <button class="btn btn-outline-secondary" type="button" id="btnToggleSecretVis" title="Show/Hide Secret">👁</button>
+                                    <button class="btn btn-outline-secondary" type="button" id="btnGenerateSecret" title="Generate new random secret">Generate</button>
+                                </div>
+                            </div>
+                            <small class="form-text text-muted">Matches <code>api_secret</code> in /etc/janus/janus.jcfg on the server</small>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <h6 class="text-uppercase text-muted font-weight-bold small mb-3">Streaming &amp; Video Quality</h6>
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <label for="cfgDefaultQuality" class="small font-weight-semibold">Default Video Quality</label>
+                                <select id="cfgDefaultQuality" class="custom-select">
+                                    <option value="low">Low (800px · 512 kbps · 12 fps)</option>
+                                    <option value="medium" selected>Medium (800px · 1 Mbps · 15 fps)</option>
+                                    <option value="high">High (1280px · 2 Mbps · 20 fps)</option>
+                                    <option value="ultra">Ultra (1920px · 4 Mbps · 30 fps)</option>
+                                </select>
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label for="cfgStunServer" class="small font-weight-semibold">STUN Server (NAT Traversal)</label>
+                                <input type="text" class="form-control" id="cfgStunServer" placeholder="stun:stun.l.google.com:19302" value="stun:stun.l.google.com:19302">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <label for="cfgTurnServer" class="small font-weight-semibold">TURN Server (Optional)</label>
+                                <input type="text" class="form-control" id="cfgTurnServer" placeholder="turn:turn.example.com:3478">
+                            </div>
+                            <div class="form-group col-md-3">
+                                <label for="cfgTurnUser" class="small font-weight-semibold">TURN Username</label>
+                                <input type="text" class="form-control" id="cfgTurnUser" placeholder="username">
+                            </div>
+                            <div class="form-group col-md-3">
+                                <label for="cfgTurnPass" class="small font-weight-semibold">TURN Credential</label>
+                                <input type="password" class="form-control" id="cfgTurnPass" placeholder="password">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-2">
+                        <h6 class="text-uppercase text-muted font-weight-bold small mb-3">Session Automation</h6>
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <label for="cfgAutoTimeout" class="small font-weight-semibold">Auto-Connect Timeout (ms)</label>
+                                <input type="number" class="form-control" id="cfgAutoTimeout" value="2200" placeholder="2200">
+                                <small class="form-text text-muted">Delay before auto-join to allow push notification wake-up</small>
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label for="cfgMaxRetries" class="small font-weight-semibold">Max Waiting Retries</label>
+                                <input type="number" class="form-control" id="cfgMaxRetries" value="12" placeholder="12">
+                                <small class="form-text text-muted">Number of retries (2s each) waiting for device to register</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light d-flex justify-content-between">
+                    <button type="button" class="btn btn-outline-info" id="btnTestJanusConnection">
+                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" class="mr-1" style="vertical-align:-2px">
+                            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+                        </svg>
+                        Test Janus Connection
+                    </button>
+                    <div>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary" id="btnSaveRemoteSettings">
+                            Save Configuration
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="mt-auto">
+        <div class="container">
+            <div class="row justify-content-center p-2 text-muted small">
+                <a href="https://headwind-remote.com" target="_blank" rel="noopener">Headwind Remote</a>&nbsp;- Open Source Remote Control for Android&nbsp;&copy;&nbsp;<script type="text/javascript">document.write(new Date().getFullYear().toString())</script>&nbsp;<a href="https://h-mdm.com" target="_blank" rel="noopener">Headwind MDM</a>
+            </div>
+        </div>
+    </footer>
+
+    <script type="text/javascript" src="dist/js/deps.min.js"></script>
+    <script type="text/javascript" src="dist/js/settings.js?v=20261119-3"></script>
+    <script type="text/javascript" src="dist/js/app.min.js?v=20261119-9"></script>
+    <script type="text/javascript">
+        (function() {
+            var params = new URLSearchParams(window.location.search);
+            var dev = params.get('device');
+            if (dev) {
+                var banner = document.getElementById('device-hint-banner');
+                if (banner) {
+                    banner.innerHTML = '<strong>Device: ' + dev.replace(/</g, '&lt;') + '</strong><br/>Launch command sent to the device. Connecting automatically, or enter the Session ID and Password shown on screen.';
+                    banner.classList.remove('d-none');
+                }
+            }
+        })();
+    </script>
+</body>
+</html>
