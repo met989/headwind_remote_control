@@ -492,7 +492,103 @@ body.remote-active footer {
 }
 
 .remote-card-settings-btn:hover {
-    color: #1a73e8;
-    border-color: #1a73e8;
-    background: #f1f8ff;
+    color: #7a9ab9;
+    border-color: #7a9ab9;
+    background: #f0f4f8;
+}
+
+/* ============================================================= */
+/* Headwind MDM Theme Overrides                                  */
+/* ============================================================= */
+:root {
+    --hmdm-primary: #7a9ab9;
+    --hmdm-primary-hover: #6786a3;
+    --hmdm-surface-bg: #faf9fd;
+    --hmdm-card-bg: #ffffff;
+    --hmdm-text-main: #1a1b1f;
+    --hmdm-text-muted: #546e7a;
+    --hmdm-border: #e0e0e0;
+    --hmdm-border-input: #c4c6d0;
+}
+
+#remoteSettingsModal .modal-content {
+    border-radius: 8px !important;
+    border: 1px solid var(--hmdm-border) !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12) !important;
+    font-family: Roboto, "Helvetica Neue", sans-serif;
+}
+
+#remoteSettingsModal .modal-header {
+    background: #ffffff !important;
+    border-bottom: 1px solid var(--hmdm-border) !important;
+    padding: 16px 24px;
+}
+
+#remoteSettingsModal .modal-title {
+    color: var(--hmdm-text-main);
+    font-size: 18px;
+    font-weight: 500;
+}
+
+#remoteSettingsModal .modal-body {
+    background: var(--hmdm-surface-bg);
+    padding: 24px;
+}
+
+#remoteSettingsModal .modal-footer {
+    background: #ffffff;
+    border-top: 1px solid var(--hmdm-border);
+    padding: 14px 24px;
+}
+
+#remoteSettingsModal label {
+    font-size: 13px;
+    font-weight: 500;
+    color: #37474f;
+    margin-bottom: 5px;
+}
+
+#remoteSettingsModal .form-control,
+#remoteSettingsModal .custom-select {
+    height: 40px;
+    border: 1px solid var(--hmdm-border-input);
+    border-radius: 4px;
+    font-size: 14px;
+    color: var(--hmdm-text-main);
+    background: #ffffff;
+}
+
+#remoteSettingsModal .form-control:focus,
+#remoteSettingsModal .custom-select:focus {
+    border-color: var(--hmdm-primary);
+    box-shadow: 0 0 0 1px var(--hmdm-primary);
+}
+
+.hmdm-btn-primary {
+    background-color: var(--hmdm-primary) !important;
+    border-color: var(--hmdm-primary) !important;
+    color: #ffffff !important;
+    font-family: Roboto, sans-serif;
+    font-weight: 500;
+    border-radius: 4px !important;
+    transition: all 0.2s;
+}
+
+.hmdm-btn-primary:hover:not(:disabled) {
+    background-color: var(--hmdm-primary-hover) !important;
+    border-color: var(--hmdm-primary-hover) !important;
+}
+
+.hmdm-btn-outline {
+    background-color: transparent !important;
+    border: 1px solid var(--hmdm-primary) !important;
+    color: var(--hmdm-primary) !important;
+    font-family: Roboto, sans-serif;
+    font-weight: 500;
+    border-radius: 4px !important;
+    transition: all 0.2s;
+}
+
+.hmdm-btn-outline:hover:not(:disabled) {
+    background-color: #f0f4f8 !important;
 }
