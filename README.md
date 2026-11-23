@@ -333,6 +333,14 @@ journalctl -u tomcat10 -n 100 --no-pager
 
 ---
 
+## ☕ Support the Project
+
+If this remote control plugin has been helpful for managing your Headwind MDM fleet or you appreciate open-source projects, consider supporting development by buying me a virtual coffee! ❤️
+
+[![Buy me a coffee on PayPal](https://img.shields.io/badge/Buy_me_a_coffee-PayPal-00457C.svg?style=for-the-badge&logo=paypal)](https://paypal.me/MatteoSacanna)
+
+---
+
 ## 📄 License
 
 This project is licensed under the **Apache License, Version 2.0**.
