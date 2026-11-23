@@ -14,6 +14,7 @@ Enables administrators and technical support teams to remotely view and control 
 
 ## 📑 Table of Contents
 
+- [Visual Showcase](#-visual-showcase)
 - [Key Features](#-key-features)
 - [System Architecture](#-system-architecture)
 - [Prerequisites](#-prerequisites)
@@ -26,6 +27,33 @@ Enables administrators and technical support teams to remotely view and control 
 - [Troubleshooting](#-troubleshooting)
 - [Security & Privacy](#-security--privacy)
 - [License](#-license)
+
+---
+
+## 📸 Visual Showcase
+
+<div align="center">
+
+### 1. Seamless 1-Click Integration in Headwind MDM
+Directly integrated into the **Devices** table (via the 3-dots action menu `⋮`) and device details panel:
+<br><br>
+<img src="images/hw_web_gui1.png" alt="1-Click Launch from Headwind MDM Devices Table" width="95%">
+
+<br><br>
+
+### 2. High-Performance WebRTC Remote Control Viewer
+Live screen streaming, remote navigation buttons (Back, Home, Recents), video quality selector, and real-time device hardware & MDM policy inspector:
+<br><br>
+<img src="images/hw_web_gui2.png" alt="Interactive Remote Control Viewer with Device Info and Navigation" width="95%">
+
+<br><br>
+
+### 3. Comprehensive Web GUI Settings Manager
+Dynamic signaling ports, cryptographically secure secret generation, video quality presets, and 1-click gateway diagnostics:
+<br><br>
+<img src="images/hw_web_gui3.png" alt="Headwind Remote Web GUI Settings and Signaling Parameters" width="95%">
+
+</div>
 
 ---
 
@@ -140,6 +168,10 @@ The built-in **`headwind-remote-sync` watchdog** monitors the file and **automat
 
 All plugin settings can be managed directly from the web browser:
 
+<p align="center">
+  <img src="images/hw_web_gui3.png" alt="Headwind Remote Settings Interface" width="90%">
+</p>
+
 1. Open your browser and navigate to `https://<your-domain>/web-admin/` (or launch a remote session from the MDM panel).
 2. Click the **⚙️ Settings** button on the top-right navigation bar.
 3. Configuration options available:
@@ -171,6 +203,16 @@ The repository includes the pre-compiled, signed Android agent APK: `headwind-re
 4. Open the **Configurations** tab and ensure `com.hmdm.control` is added and enabled in your device configuration.
 5. When the app is installed on the managed device, grant the required **Accessibility Service** permission when prompted (enables remote gesture injection).
 6. In the MDM **Devices** table, click the **3-dots menu (⋮)** on any device and select **Remote Control**!
+
+<p align="center">
+  <img src="images/hw_web_gui1.png" alt="Launching Remote Control from Headwind MDM Devices Table" width="90%">
+</p>
+
+Once connected, the live control console opens with real-time video, device telemetry, and navigation controls:
+
+<p align="center">
+  <img src="images/hw_web_gui2.png" alt="Interactive Remote Control Session" width="90%">
+</p>
 
 ---
 
@@ -220,6 +262,7 @@ headwind_remote_control/
 ├── scripts/
 │   ├── build_android_apk.py      # Automated Android compilation and APK signing script
 │   └── deploy_webadmin.py        # Automated Java compiler, WAR bundler, and deployment script
+├── images/                       # Screenshots and visual documentation assets
 ├── headwind-remote-custom.apk    # Pre-compiled, signed production Android agent (v2.4-custom)
 ├── web-admin.war                 # Pre-compiled production web application archive (WAR)
 ├── install.sh                    # Full automated installer for Ubuntu/Debian Headwind MDM servers
