@@ -249,7 +249,7 @@
 
       var textEl = item.querySelector('.menu-text');
       if (textEl) {
-        textEl.textContent = 'Controllo remoto';
+        textEl.textContent = 'Remote Control';
       }
     } else {
       item = document.createElement('mat-tree-node');
@@ -259,7 +259,7 @@
       item.setAttribute('tabindex', '-1');
       item.innerHTML =
         '<mat-icon role="img" class="mat-icon notranslate material-icons mat-ligature-font menu-icon" aria-hidden="true">settings_remote</mat-icon>' +
-        '<span class="menu-text">Controllo remoto</span>';
+        '<span class="menu-text">Remote Control</span>';
     }
 
     item.style.cursor = 'pointer';
