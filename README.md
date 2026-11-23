@@ -34,10 +34,22 @@ Enables administrators and technical support teams to remotely view and control 
 
 <div align="center">
 
-### 1. Seamless 1-Click Integration in Headwind MDM
-Directly integrated into the **Devices** table (via the 3-dots action menu `⋮`) and device details panel:
+### 1. Seamless Native Integration in Headwind MDM
+Directly integrated into both the **Main Navigation Sidebar** (under *Functions*) and the **Devices** table action popup (`⋮`):
 <br><br>
-<img src="images/hw_web_gui1.png" alt="1-Click Launch from Headwind MDM Devices Table" width="95%">
+
+<table align="center">
+  <tr valign="top">
+    <td align="center" width="32%">
+      <b>Main Sidebar Navigation</b><br><br>
+      <img src="images/hw_web_gui4.png" alt="Headwind MDM Sidebar Remote Control Navigation" width="100%">
+    </td>
+    <td align="center" width="68%">
+      <b>Devices Table 1-Click Action Menu</b><br><br>
+      <img src="images/hw_web_gui1.png" alt="1-Click Launch from Headwind MDM Devices Table" width="100%">
+    </td>
+  </tr>
+</table>
 
 <br><br>
 
